@@ -10,6 +10,11 @@
 #include <vector>
 #include <spdlog/spdlog.h>
 
+// Module selection enum
+enum class AIModule {
+    RAISING_HAND_AI = 1,  // Module 1: RaisingHand controlled by AI signal
+    CARRY_BOX = 2         // Module 2: Walk 5s then raise hand
+};
 
 class AISignal
 {
@@ -19,6 +24,10 @@ public:
         static AISignal instance;
         return instance;
     }
+
+    // Module selection
+    void setModule(AIModule module) { selected_module_ = module; }
+    AIModule getModule() const { return selected_module_.load(); }
 
     
     void start(const std::string& address = "tcp://localhost:5555")
@@ -57,6 +66,8 @@ public:
                             vel_ang_ = 0.0f;
                             spdlog::info("AISignal: RAISINGHAND triggered!");
                         }
+
+
                         // Parse "vel vel_x|vel_y|ang_z" format
                         else if (received.find("vel ") == 0) {
                             raising_hand_triggered_ = false;
@@ -126,7 +137,8 @@ public:
 
 private:
     AISignal() : running_(false), vel_x_(0.0f), vel_y_(0.0f), vel_ang_(0.0f),
-                 raising_hand_triggered_(false), last_vx_(0.0f), last_vy_(0.0f), last_vang_(0.0f) {}
+                 raising_hand_triggered_(false), selected_module_(AIModule::RAISING_HAND_AI),
+                 last_vx_(0.0f), last_vy_(0.0f), last_vang_(0.0f) {}
     ~AISignal() { stop(); }
     
     // Disable copy
@@ -138,6 +150,7 @@ private:
     std::atomic<float> vel_y_;
     std::atomic<float> vel_ang_;
     std::atomic<bool> raising_hand_triggered_;
+    std::atomic<AIModule> selected_module_;
     float last_vx_;
     float last_vy_;
     float last_vang_;

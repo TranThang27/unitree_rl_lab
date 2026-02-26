@@ -34,6 +34,26 @@ int main(int argc, char** argv)
 
     std::cout << " --- Unitree Robotics --- \n";
     std::cout << "     G1-29dof Controller \n";
+    std::cout << "\n";
+    
+    // Module selection from command line: -m 1 or -m 2 (default: 1)
+    int module_choice = vm["module"].as<int>();
+    
+    std::cout << "=== Module Selection ===\n";
+    std::cout << "  1. RaisingHand AI (AI controlled raising hand)\n";
+    std::cout << "  2. CarryBox (Walk 5s then raise hand)\n";
+    
+    if (module_choice == 2) {
+        AISignal::getInstance().setModule(AIModule::CARRY_BOX);
+        std::cout << "\n>>> Module 2: CarryBox selected\n";
+        std::cout << "    Scenario: Walk forward 5s -> Carrybox\n\n";
+    } else {
+        AISignal::getInstance().setModule(AIModule::RAISING_HAND_AI);
+        std::cout << "\n>>> Module 1: RaisingHand AI selected (default)\n";
+        std::cout << "    Scenario: Follow human\n\n";
+    }
+    
+    std::cout << "Tip: Use -m 2 to select CarryBox module\n\n";
 
     // Unitree DDS Config
     unitree::robot::ChannelFactory::Instance()->Init(0, vm["network"].as<std::string>());
@@ -46,7 +66,7 @@ int main(int argc, char** argv)
         exit(-1);
     }
     
-    // Start AI Signal receiver (ZMQ subscriber for face detection)
+    // Start AI Signal receiver 
     AISignal::getInstance().start("tcp://localhost:5555");
     
     // Initialize FSM

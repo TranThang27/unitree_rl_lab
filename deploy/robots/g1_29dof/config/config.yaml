@@ -9,6 +9,9 @@ FSM:
       type: RLBase
     RaisingHand:
       id: 4
+    CarryBox:
+      id: 5
+      type: RaisingHand  # Uses same class as RaisingHand
 
 
   Passive:
@@ -72,3 +75,10 @@ FSM:
       FixStand: RB + X.on_pressed
     policy_dir: config/policy/raising_hand  # Uses zero_velocity_commands for standing still
     raise_duration: 4.0  # Time to raise right hand (seconds)
+
+  CarryBox:
+    transitions:
+      Passive: LT + B.on_pressed
+      FixStand: RB + X.on_pressed
+    policy_dir: config/policy/raising_hand  # Same policy as RaisingHand
+    raise_duration: 4.0  # Time to raise hand (seconds)

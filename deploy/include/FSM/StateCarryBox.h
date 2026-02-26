@@ -45,14 +45,11 @@ public:
     State_RaisingHand(int state, std::string state_string = "RaisingHand") 
     : State_RLBase(state, state_string)  // Gọi constructor của State_RLBase
     {
-        // Load config based on state_string (supports both RaisingHand and CarryBox)
-        auto cfg = param::config["FSM"][state_string];
+        // Load config if exists
+        auto cfg = param::config["FSM"]["RaisingHand"];
         if(cfg["raise_duration"].IsDefined()) {
             raise_duration_ = cfg["raise_duration"].as<float>();
         }
-        
-        // Check if this is CarryBox state (raise both arms)
-        is_carrybox_ = (state_string == "CarryBox");
     }
 
     void enter()
@@ -77,31 +74,26 @@ public:
         float t = (double)unitree::common::GetCurrentTimeMillisecond() * 1e-3 - t0_arm_;
         float ratio = std::clamp(t / raise_duration_, 0.0f, 1.0f);
 
-        // Target positions - CarryBox raises BOTH hands, RaisingHand raises only RIGHT
-        std::array<float, 14> q_target;
         
-        if (is_carrybox_) {
-            // CarryBox: Raise BOTH arms
-            q_target = {
-                // Left arm (raised up)
-                -0.5f,        // LeftShoulderPitch (raise up)
-                0.15f,        // LeftShoulderRoll (slightly out)
-                q0_arm_[2],   // LeftShoulderYaw
-                0.7f,         // LeftElbow
-                q0_arm_[4],   // LeftWristRoll
-                q0_arm_[5],   // LeftWristPitch
-                q0_arm_[6],   // LeftWristYaw
-                
-                // Right arm (raised up)
-                -0.5f,        // RightShoulderPitch (raise up)
-                -0.15f,       // RightShoulderRoll (slightly out)
-                q0_arm_[9],   // RightShoulderYaw
-                0.7f,         // RightElbow
-                q0_arm_[11],  // RightWristRoll
-                q0_arm_[12],  // RightWristPitch
-                q0_arm_[13]   // RightWristYaw
-            };
-        }
+        std::array<float, 14> q_target = {
+            // Left arm (keep original position)
+            -0.5f,   // LeftShoulderPitch
+            -0.0f,   // LeftShoulderRoll
+            q0_arm_[2],   // LeftShoulderYaw
+            0.7f,   // LeftElbow
+            q0_arm_[4],   // LeftWristRoll
+            q0_arm_[5],   // LeftWristPitch
+            q0_arm_[6],   // LeftWristYaw
+            
+            // Right arm (raised up)
+            -0.5f,        // RightShoulderPitch (raise up)
+            -0.0f,       // RightShoulderRoll (slightly out)
+            q0_arm_[9],   // RightShoulderYaw
+            0.7f,         // RightElbow (straight)
+            q0_arm_[11],  // RightWristRoll
+            q0_arm_[12],  // RightWristPitch
+            q0_arm_[13]   // RightWristYaw
+        };
 
         // Interpolate and set arm positions (override policy output for arms)
         for(int i = LeftShoulderPitch; i <= RightWristYaw; ++i)
@@ -124,7 +116,6 @@ private:
     double t0_arm_;
     float raise_duration_ = 2.0f;  // Time to raise hand (seconds)
     std::array<float, 14> q0_arm_;  // Initial arm positions
-    bool is_carrybox_ = false;  // True if this is CarryBox state (raise both arms)
 };
 
 REGISTER_FSM(State_RaisingHand)
