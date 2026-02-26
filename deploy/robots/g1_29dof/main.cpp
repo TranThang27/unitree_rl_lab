@@ -4,6 +4,7 @@
 #include "FSM/State_RLBase.h"
 #include "State_Mimic.h"
 #include "FSM/State_RaisingHand.h"
+#include "FSM/State_CarryBox.h"
 #include "AISignal.h"
 
 std::unique_ptr<LowCmd_t> FSMState::lowcmd = nullptr;

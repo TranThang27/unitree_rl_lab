@@ -11,7 +11,7 @@ FSM:
       id: 4
     CarryBox:
       id: 5
-      type: RaisingHand  # Uses same class as RaisingHand
+      type: CarryBox  
 
 
   Passive:
@@ -60,6 +60,7 @@ FSM:
       ]
     ]
     auto_velocity_delay: 6.0  # Auto switch to Velocity mode after 5 seconds (wait for stable stand)
+    # auto_velocity_command:0.0 # Neu muon khong tu dong sang velocity mode
   Velocity:
     transitions: 
       Passive: LT + B.on_pressed
@@ -80,5 +81,5 @@ FSM:
     transitions:
       Passive: LT + B.on_pressed
       FixStand: RB + X.on_pressed
-    policy_dir: config/policy/raising_hand  # Same policy as RaisingHand
+    policy_dir: config/policy/raising_hand  
     raise_duration: 4.0  # Time to raise hand (seconds)
