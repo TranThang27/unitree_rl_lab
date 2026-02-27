@@ -9,9 +9,6 @@ FSM:
       type: RLBase
     RaisingHand:
       id: 4
-    CarryBox:
-      id: 5
-      type: CarryBox  
 
 
   Passive:
@@ -59,14 +56,12 @@ FSM:
         0, -0.25,0,0.97,-0.15, 0,0
       ]
     ]
-    auto_velocity_delay: 6.0  # Auto switch to Velocity mode after 5 seconds (wait for stable stand)
+    auto_velocity_delay: 7.0  # Auto switch to Velocity mode after 5 seconds (wait for stable stand)
     # auto_velocity_command:0.0 # Neu muon khong tu dong sang velocity mode
   Velocity:
     transitions: 
       Passive: LT + B.on_pressed
       RaisingHand: RB + Y.on_pressed
-
-
     policy_dir: config/policy/velocity
 
 
@@ -75,15 +70,8 @@ FSM:
       Passive: LT + B.on_pressed
       FixStand: RB + X.on_pressed
     policy_dir: config/policy/raising_hand  # Uses zero_velocity_commands for standing still
-    raise_duration: 4.0  # Time to raise right hand (seconds)
-
-  CarryBox:
-    transitions:
-      Passive: LT + B.on_pressed
-      FixStand: RB + X.on_pressed
-    policy_dir: config/policy/carry_box  
-    walk_first_duration: 5.0  # Phase 1: Đi thẳng 5s đầu
-    open_duration: 2.0        # Phase 2: Mở hai tay ra
-    raise_duration: 2.0       # Phase 3: Giơ tay lên
-    turn_duration: 4.0        # Phase 4: Quay đầu 180 độ
-    walk_back_duration: 5.0   # Phase 5: Đi thẳng về
+    raise_duration: 2.5   # Thời gian giơ tay lên (giây)
+    hold_duration: 4.0    # Thời gian giữ tay trên cao (giây) - sau đó hạ xuống
+    lower_duration: 2.5   # Thời gian hạ tay xuống (giây)
+    turn_duration: 10.0   # Thời gian quay đầu (giây)
+    turn_velocity: 0.6    # Tốc độ quay đầu (rad/s)

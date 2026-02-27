@@ -130,7 +130,7 @@ inline po::variables_map helper(int argc, char** argv)
         ("version,v", "show version")
         ("log", "record log file")
         ("network,n", po::value<std::string>()->default_value(""), "dds network interface")
-        ("module,m", po::value<int>()->default_value(1), "module selection: 1=RaisingHand AI, 2=CarryBox")
+        ("module,m", po::value<int>()->default_value(1), "module selection: 1=RaisingHand AI")
         ;
 
     po::variables_map vm;

@@ -4,7 +4,6 @@
 #include "FSM/State_RLBase.h"
 #include "State_Mimic.h"
 #include "FSM/State_RaisingHand.h"
-#include "FSM/State_CarryBox.h"
 #include "AISignal.h"
 
 std::unique_ptr<LowCmd_t> FSMState::lowcmd = nullptr;
@@ -37,24 +36,10 @@ int main(int argc, char** argv)
     std::cout << "     G1-29dof Controller \n";
     std::cout << "\n";
     
-    // Module selection from command line: -m 1 or -m 2 (default: 1)
-    int module_choice = vm["module"].as<int>();
-    
-    std::cout << "=== Module Selection ===\n";
-    std::cout << "  1. RaisingHand AI (AI controlled raising hand)\n";
-    std::cout << "  2. CarryBox (Walk 5s then raise hand)\n";
-    
-    if (module_choice == 2) {
-        AISignal::getInstance().setModule(AIModule::CARRY_BOX);
-        std::cout << "\n>>> Module 2: CarryBox selected\n";
-        std::cout << "    Scenario: Walk forward 5s -> Carrybox\n\n";
-    } else {
-        AISignal::getInstance().setModule(AIModule::RAISING_HAND_AI);
-        std::cout << "\n>>> Module 1: RaisingHand AI selected (default)\n";
-        std::cout << "    Scenario: Follow human\n\n";
-    }
-    
-    std::cout << "Tip: Use -m 2 to select CarryBox module\n\n";
+    // Set module to RaisingHand AI
+    AISignal::getInstance().setModule(AIModule::RAISING_HAND_AI);
+    std::cout << ">>> RaisingHand AI module active\n";
+    std::cout << "    Scenario: Follow human\n\n";
 
     // Unitree DDS Config
     unitree::robot::ChannelFactory::Instance()->Init(0, vm["network"].as<std::string>());
@@ -62,6 +47,7 @@ int main(int argc, char** argv)
     init_fsm_state();
 
     FSMState::lowcmd->msg_.mode_machine() = 5; // 29dof
+
     if(!FSMState::lowcmd->check_mode_machine(FSMState::lowstate)) {
         spdlog::critical("Unmatched robot type.");
         exit(-1);

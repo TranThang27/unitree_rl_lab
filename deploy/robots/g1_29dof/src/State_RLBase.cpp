@@ -1,5 +1,4 @@
 #include "FSM/State_RLBase.h"
-#include "FSM/State_CarryBox.h"
 #include "unitree_articulation.h"
 #include "isaaclab/envs/mdp/observations/observations.h"
 #include "isaaclab/envs/mdp/actions/joint_actions.h"
@@ -61,20 +60,9 @@ REGISTER_OBSERVATION(zero_velocity_commands)
 }
 
 // AI-controlled velocity command: receive velocity from Python PD controller via ZMQ
-// Supports both Module 1 (AI signal) and Module 2 (CarryBox - phase-based)
 REGISTER_OBSERVATION(ai_velocity_commands)
 {
     AISignal& ai = AISignal::getInstance();
-    AIModule module = ai.getModule();
-    
-    if (module == AIModule::CARRY_BOX) {
-        // Module 2: CarryBox - read velocity from State_CarryBox's static variables
-        float vel_x = State_CarryBox::target_vel_x.load();
-        float vel_yaw = State_CarryBox::target_vel_yaw.load();
-        return std::vector<float>{vel_x, 0.0f, vel_yaw};
-    }
-    
-    // Module 1: AI-controlled velocity from Python PD controller
     float vel_x = ai.getVelX();
     float vel_y = ai.getVelY();
     float vel_ang = ai.getVelAng();
@@ -82,25 +70,6 @@ REGISTER_OBSERVATION(ai_velocity_commands)
     return std::vector<float>{vel_x, vel_y, vel_ang};
 }
 
-
-
-// CarryBox velocity command: Walk forward 0.3 m/s for 5s, then stop
-// Used with Module 2 (CARRY_BOX)
-REGISTER_OBSERVATION(carrybox_velocity_commands)
-{
-    float elapsed = env->episode_length * env->step_dt;
-    
-    // Walk forward for 5 seconds
-    if (elapsed < 5.0f) 
-    {       
-        return std::vector<float>{0.2f, 0.0f, 0.0f};  // 0.3 m/s forward
-    } 
-    else 
-    {
-        // After 5s: stop (RaisingHand will be triggered by State_RLBase)
-        return std::vector<float>{0.0f, 0.0f, 0.0f};
-    }
-}
 
 }
 
@@ -116,9 +85,7 @@ State_RLBase::State_RLBase(int state_mode, std::string state_string)
     );
     env->alg = std::make_unique<isaaclab::OrtRunner>(policy_dir / "exported" / "policy.onnx");
 
-    // Auto transition based on selected module
-    // Module 1: RaisingHand when AI signal
-    // Module 2: CarryBox after 5s walking
+    // Auto transition: RaisingHand when AI signal is triggered
     
     // Module 1: RaisingHand triggered by AI signal
     if(FSMStringMap.right.count("RaisingHand"))
@@ -138,27 +105,6 @@ State_RLBase::State_RLBase(int state_mode, std::string state_string)
                     return false;
                 },
                 raisinghand_id
-            )
-        );
-    }
-    
-    // Module 2: CarryBox after 5s walking
-    if(FSMStringMap.right.count("CarryBox"))
-    {
-        int carrybox_id = FSMStringMap.right.at("CarryBox");
-        this->registered_checks.emplace_back(
-            std::make_pair(
-                [this]() -> bool {
-                    AISignal& ai = AISignal::getInstance();
-                    if (ai.getModule() == AIModule::CARRY_BOX) {
-                        float elapsed = env->episode_length * env->step_dt;
-                        if (elapsed >= 7.0f) {
-                            return true;
-                        }
-                    }
-                    return false;
-                },
-                carrybox_id
             )
         );
     }

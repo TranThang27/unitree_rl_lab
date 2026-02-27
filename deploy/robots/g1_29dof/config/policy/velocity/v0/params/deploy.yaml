@@ -42,17 +42,11 @@ observations:
   # keyboard_velocity_commands:
   # fixed_velocity_commands:  # Fixed 0.2 m/s forward
 
-  ai_velocity_commands:  # AI-controlled: Module 1 uses Python AI, Module 2 walks 5s then stops
+  ai_velocity_commands:  # AI-controlled velocity commands from Python PD controller
     params: {command_name: base_velocity}
     clip: null
     scale: [1.0, 1.0, 1.0]
     history_length: 5
-  
-  # carrybox_velocity_commands:  # Old - now handled by ai_velocity_commands
-  #   params: {command_name: base_velocity}
-  #   clip: null
-  #   scale: [1.0, 1.0, 1.0]
-  #   history_length: 5
 
   joint_pos_rel:
     params: {}
