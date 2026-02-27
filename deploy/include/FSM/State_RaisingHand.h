@@ -34,11 +34,7 @@ enum G1ArmJointIndex {
     RightWristYaw = 28
 };
 
-/**
- * State_RaisingHand: Kế thừa từ State_RLBase
- * - Policy vẫn chạy để điều khiển chân giữ cân bằng
- * - Override điều khiển tay PHẢI để giơ lên
- */
+
 class State_RaisingHand : public State_RLBase
 {
 public:
@@ -85,7 +81,7 @@ public:
             q0_arm_[6],   // LeftWristYaw
             
             // Right arm (giơ lên)
-            -0.5f,        // RightShoulderPitch (raise up)
+            -0.65f,        // RightShoulderPitch (raise up)
             -0.15f,       // RightShoulderRoll (slightly out)
             q0_arm_[9],   // RightShoulderYaw
             0.7f,         // RightElbow

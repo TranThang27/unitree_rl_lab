@@ -1,4 +1,5 @@
 #include "FSM/State_RLBase.h"
+#include "FSM/State_CarryBox.h"
 #include "unitree_articulation.h"
 #include "isaaclab/envs/mdp/observations/observations.h"
 #include "isaaclab/envs/mdp/actions/joint_actions.h"
@@ -60,20 +61,17 @@ REGISTER_OBSERVATION(zero_velocity_commands)
 }
 
 // AI-controlled velocity command: receive velocity from Python PD controller via ZMQ
-// Supports both Module 1 (AI signal) and Module 2 (CarryBox - walk 5s)
+// Supports both Module 1 (AI signal) and Module 2 (CarryBox - phase-based)
 REGISTER_OBSERVATION(ai_velocity_commands)
 {
     AISignal& ai = AISignal::getInstance();
     AIModule module = ai.getModule();
     
     if (module == AIModule::CARRY_BOX) {
-        // Module 2: CarryBox - Walk forward 0.3 m/s for 5 seconds
-        float elapsed = env->episode_length * env->step_dt;
-        if (elapsed < 5.0f) {
-            return std::vector<float>{0.3f, 0.0f, 0.0f};  // Walk forward
-        } else {
-            return std::vector<float>{0.0f, 0.0f, 0.0f};  // Stop (waiting for RaisingHand)
-        }
+        // Module 2: CarryBox - read velocity from State_CarryBox's static variables
+        float vel_x = State_CarryBox::target_vel_x.load();
+        float vel_yaw = State_CarryBox::target_vel_yaw.load();
+        return std::vector<float>{vel_x, 0.0f, vel_yaw};
     }
     
     // Module 1: AI-controlled velocity from Python PD controller
@@ -154,7 +152,7 @@ State_RLBase::State_RLBase(int state_mode, std::string state_string)
                     AISignal& ai = AISignal::getInstance();
                     if (ai.getModule() == AIModule::CARRY_BOX) {
                         float elapsed = env->episode_length * env->step_dt;
-                        if (elapsed >= 5.0f) {
+                        if (elapsed >= 7.0f) {
                             return true;
                         }
                     }

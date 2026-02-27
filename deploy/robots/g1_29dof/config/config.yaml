@@ -81,5 +81,9 @@ FSM:
     transitions:
       Passive: LT + B.on_pressed
       FixStand: RB + X.on_pressed
-    policy_dir: config/policy/raising_hand  
-    raise_duration: 4.0  # Time to raise hand (seconds)
+    policy_dir: config/policy/carry_box  
+    walk_first_duration: 5.0  # Phase 1: Đi thẳng 5s đầu
+    open_duration: 2.0        # Phase 2: Mở hai tay ra
+    raise_duration: 2.0       # Phase 3: Giơ tay lên
+    turn_duration: 4.0        # Phase 4: Quay đầu 180 độ
+    walk_back_duration: 5.0   # Phase 5: Đi thẳng về

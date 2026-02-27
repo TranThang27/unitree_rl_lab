@@ -38,8 +38,8 @@ observations:
     clip: null
     scale: [1.0, 1.0, 1.0]
     history_length: 5
-  # Use zero velocity commands for RaisingHand - robot stands still
-  zero_velocity_commands:
+  # Use ai_velocity_commands for CarryBox - controlled by State_CarryBox phases
+  ai_velocity_commands:
     params: {command_name: base_velocity}
     clip: null
     scale: [1.0, 1.0, 1.0]
