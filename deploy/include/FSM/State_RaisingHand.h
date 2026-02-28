@@ -42,7 +42,6 @@ enum class RaisingHandPhase {
     HOLDING,      // Giữ tay trên cao
     LOWERING,     // Hạ tay xuống
     TURNING,  
-        // Quay đầu tại chỗ
     MOVING_FORWARD, // Di chuyển về phía trước
     DONE          // Hoàn thành, sẵn sàng chuyển state
 };
@@ -164,24 +163,26 @@ public:
             break;
         }
         
-        case RaisingHandPhase::TURNING:
+       case RaisingHandPhase::TURNING:
         {
-            // TĂNG/GIẢM TỐC XOAY MƯỢT MÀ
-            float v_ang = turn_velocity_;
-            if (t < ramp_time) {
-                v_ang = turn_velocity_ * (t / ramp_time); // Tăng tốc dần
-            } else if (t > turn_duration_ - ramp_time) {
-                v_ang = turn_velocity_ * (turn_duration_ - t) / ramp_time; // Giảm tốc dần
-            }
+            // Thiết lập vận tốc quay cố định 0.5 rad/s
+            // Lưu ý: Đối với quay tại chỗ, giá trị x và y phải là 0.0
+            float fixed_turn_vel_y = 0.15f;
+            float fixed_turn_vel_Z = 0.6f; 
+            AISignal::getInstance().setVelocity(0.0f, fixed_turn_vel_y, fixed_turn_vel_Z);
             
-            AISignal::getInstance().setVelocity(0.0f, 0.0f, std::max(0.0f, v_ang));
-            q_current = q0_arm_;
-            
+            q_current = q0_arm_; // Giữ tay ở vị trí mặc định
+
+            // In log cảnh báo mỗi giây một lần để tránh tràn màn hình (spam)
+
             if(t >= turn_duration_) {
                 phase_ = RaisingHandPhase::MOVING_FORWARD;
+                // RESET mốc thời gian cực kỳ quan trọng để phase sau không bị bỏ qua
                 t0_arm_ = (double)unitree::common::GetCurrentTimeMillisecond() * 1e-3;
-                AISignal::getInstance().setVelocity(0.0f, 0.0f, 0.0f);
                 
+                // Dừng quay trước khi bắt đầu đi thẳng
+                AISignal::getInstance().setVelocity(0.0f, 0.0f, 0.0f);
+                spdlog::info("RaisingHand: Quay xong, chuyen sang di thang.");
             }
             break;
         }
@@ -198,7 +199,8 @@ public:
 
             AISignal::getInstance().setVelocity(std::max(0.0f, current_v), 0.0f, 0.0f);
             q_current = q0_arm_;
-            
+             spdlog::warn("Di thang sau khi quay dau");
+
             if(t >= move_duration) { 
                 phase_ = RaisingHandPhase::DONE;
                 AISignal::getInstance().setVelocity(0.0f, 0.0f, 0.0f);
