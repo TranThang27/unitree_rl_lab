@@ -167,9 +167,9 @@ public:
         {
             // Thiết lập vận tốc quay cố định 0.5 rad/s
             // Lưu ý: Đối với quay tại chỗ, giá trị x và y phải là 0.0
-            float fixed_turn_vel_y = 0.15f;
-            float fixed_turn_vel_Z = 0.6f; 
-            AISignal::getInstance().setVelocity(0.0f, fixed_turn_vel_y, fixed_turn_vel_Z);
+            float fixed_turn_vel_y = 0.0f;
+            float fixed_turn_vel_Z = 0.5f; 
+            AISignal::getInstance().setVelocity(0.01f, fixed_turn_vel_y, fixed_turn_vel_Z);
             
             q_current = q0_arm_; // Giữ tay ở vị trí mặc định
 
@@ -199,7 +199,7 @@ public:
 
             AISignal::getInstance().setVelocity(std::max(0.0f, current_v), 0.0f, 0.0f);
             q_current = q0_arm_;
-             spdlog::warn("Di thang sau khi quay dau");
+            spdlog::warn("Di thang sau khi quay dau");
 
             if(t >= move_duration) { 
                 phase_ = RaisingHandPhase::DONE;
