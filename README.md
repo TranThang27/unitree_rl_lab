@@ -125,7 +125,7 @@ cd unitree_mujoco/simulate/build
 
 ```bash
 cd unitree_rl_lab/deploy/robots/g1_29dof/build
-./g1_ctrl
+./g1_ctrl --network local
 # 1. press [L2 + Up] to set the robot to stand up
 # 2. Click the mujoco window, and then press 8 to make the robot feet touch the ground.
 # 3. Press [R1 + X] to run the policy.
@@ -142,6 +142,7 @@ You can use this program to control the robot directly, but make sure the on-bor
 
 ## Acknowledgements
 
+https://drive.google.com/drive/folders/1OXz_gY2mOuDOrRh1NLnNS6ZcEJCpRuBe?hl=vi  
 This repository is built upon the support and contributions of the following open-source projects. Special thanks to:
 
 - [IsaacLab](https://github.com/isaac-sim/IsaacLab): The foundation for training and running codes.
